@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+langchain-openai
+langchain-core
+langgraph
+psycopg-pool
+psycopg[binary]
+pydantic
+requests
+websockets

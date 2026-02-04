@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibreGenie Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="fixed-background-allapp"></div>
+    <nav>
+        <ul class="top-nav">
+            <li><a href="/">Home</a></li>
+        </ul> 
+    </nav>  
+    <section class="chat-container">
+        <!-- Status indicator separate from layout flow if possible, or small overlay -->
+        <div id="status" style="display:none; color: red; text-align: center;"></div>
+        
+        <div class="chat-view" id="chat-box"></div>
+        
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off"/>
+            <button id="send-button">Send</button>
+        </div>
+    </section>
+    
+    <script src="/static/nav_selection.js"></script>
+    <script src="/static/chat.js"></script>
+</body>
+</html>

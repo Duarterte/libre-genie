@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibreGenie</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="fixed-background-allapp"></div>
+    <nav>
+        <ul class="top-nav">
+            <li><a href="/">Home</a></li>
+        </ul>
+    </nav>
+    <section class="objectives-container">
+        <button id="add-obj-btn">Add Objective</button>
+        <div class="objectives-view">
+            <div style="text-align: center; color: rgba(255,255,255,0.5);">Loading...</div>
+        </div>
+    </section>
+
+    <!-- Modal for adding Objective/Task -->
+    <div id="genie-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="modal-title">New Objective</h2>
+            <input type="text" id="modal-input-title" placeholder="Title..." />
+            <textarea id="modal-input-desc" placeholder="Description (optional)..."></textarea>
+            <input type="number" id="modal-input-weight" placeholder="Weight (1-10)..." min="1" max="10" style="display:none;" />
+            <div class="modal-actions">
+                <button id="modal-cancel-btn" class="secondary-btn">Cancel</button>
+                <button id="modal-confirm-btn" class="primary-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- replace previous script with efficient canvas-based background -->
+</body>
+<script src="/static/nav_selection.js"></script>
+<script src="/static/objectives.js"></script>
+</html>
