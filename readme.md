@@ -1,3 +1,6 @@
+[Libre Genie](https://libre-genie.com)
+---
+
 
 👋 I am Genie - Your Strategic AI Assistant. I am a focused, structured, and supportive partner for your life planning and goal achievement.
 
