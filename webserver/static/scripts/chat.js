@@ -112,6 +112,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Helper to manage status text/visibility with optional auto-hide
+    function setStatus(text = "", visible = true, autoHideMs = 0) {
+        if (!statusDiv) return;
+        // clear any pending hide timer
+        if (statusDiv._hideTimer) {
+            clearTimeout(statusDiv._hideTimer);
+            delete statusDiv._hideTimer;
+        }
+        statusDiv.innerText = text;
+        statusDiv.style.display = visible ? "block" : "none";
+        if (autoHideMs > 0 && visible) {
+            statusDiv._hideTimer = setTimeout(() => {
+                statusDiv.style.display = "none";
+                statusDiv.innerText = "";
+                delete statusDiv._hideTimer;
+            }, autoHideMs);
+        }
+    }
+
     // WebSocket
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws`;
@@ -119,18 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let reconnectInterval = 2000;
 
     function connectWS() {
-        // Close existing if open
+        // Avoid duplicate connects
         if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
 
         console.log("Connecting to WS:", wsUrl);
+        // We do not show "Connecting..." status on UI to avoid flicker/annoyance
+
         ws = new WebSocket(wsUrl);
-        
+
         ws.onopen = () => {
-            console.log("WS Connected");
-            if (statusDiv) {
-                statusDiv.innerText = "";
-                statusDiv.style.display = "none";
-            }
+            console.log("WS Connected.");
+            // Hide any stuck status
+            setStatus("", false);
             reconnectInterval = 2000;
         };
 
@@ -149,24 +168,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ws.onclose = (e) => {
             console.log("WS Closed:", e.code, e.reason);
-            if (statusDiv) {
-                statusDiv.style.display = "block";
-                statusDiv.innerText = "Disconnected. Reconnecting...";
-            }
+            // Don't clear status here; let the timer or existing alert persist
             setTimeout(connectWS, reconnectInterval);
             reconnectInterval = Math.min(reconnectInterval * 1.5, 30000);
         };
 
         ws.onerror = (err) => {
             console.error("WS Error:", err);
-            // Do not force close, let the browser handle the socket state
+            // Let onclose handle reconnection timing
         };
     }
 
     function appendMessage(role, text) {
         const div = document.createElement('div');
         div.className = `chat-message ${role}`;
-        div.innerText = text;
+        div.innerHTML = marked.parse(text);
         chatBox.appendChild(div);
         // Scroll to bottom
         chatBox.scrollTop = chatBox.scrollHeight;

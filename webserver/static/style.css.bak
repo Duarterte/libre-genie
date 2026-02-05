@@ -1,0 +1,918 @@
+:root {
+    --fluid-font-nav: clamp(1rem, 1.5dvw + 0.5rem, 1.5rem);
+    --nav-item-height: clamp(2.15rem, 3dvw, 2.5rem);
+    /* height used for nav buttons */
+    --chat-input-height: clamp(3rem, 5dvw, 4rem); /* slightly smaller */
+    --font-family-base: 'Alladin';
+    --font-family-chat: Verdana, Geneva, Tahoma, sans-serif;
+    --border-color: rgba(240, 230, 140, 1.0);
+    --border-color-opacity: rgba(240, 230, 140, 0.8);
+}
+
+@font-face {
+    font-family: var(--font-family-base);
+    src: url('Aladin-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html,
+body {
+    font-family: 'Alladin', nomal;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh; /* Uses dynamic viewport height */
+    overflow: hidden; /* Prevents double scrollbars */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #f0e68c;
+    /* Light golden color for a magical feel */
+    text-align: center;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.fixed-background-allapp {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background-color: #05070a;
+    /* Deep dark base */
+    overflow: hidden;
+    /* Hide circles when they move off-screen */
+    pointer-events: none;
+    /* allow clicks through the canvas */
+    touch-action: none;
+}
+
+/* ensure canvas behaves like the previous fixed div */
+canvas.fixed-background-allapp {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(25px);
+    /* Creates that smooth, radial glow */
+    opacity: 0.6;
+    will-change: transform;
+    pointer-events: none;
+    /* Ensure they don't interfere with clicks */
+
+    /* Animation: Top-Right to Bottom-Left */
+    animation: moveDiagonal linear infinite;
+}
+
+@keyframes moveDiagonal {
+    0% {
+        transform: translate(100vw, -20vh);
+        /* Start off-screen top-right */
+    }
+
+    100% {
+        transform: translate(-100vw, 120vh);
+        /* End off-screen bottom-left */
+    }
+}
+
+nav, .top-nav, h1 {
+    flex-shrink: 0;
+}
+
+.top-nav {
+    display: flex;
+    list-style-type: none;
+    justify-content: space-evenly;
+    font-size: var(--fluid-font-nav);
+    flex-wrap: wrap;
+    gap: 3dvw;
+    padding: clamp(0.25rem, 0.5dvw + 0.25rem, 0.75rem);
+    margin: 0;
+}
+
+
+
+.top-nav>li {
+    flex: 1 1 16rem;
+    height: var(--nav-item-height);
+    text-align: center;
+    box-sizing: border-box;
+    background: #0015FF;
+    background: linear-gradient(0deg, rgba(0, 21, 255, 1) 0%, rgba(10, 0, 25, 1) 50%, rgba(0, 21, 255, 1) 100%);
+    padding: 0;
+    /* move visual padding to the anchor so clicks anywhere hit the link */
+    cursor: pointer;
+    position: relative;
+    border-radius: clamp(1rem, 2dvw + 1rem, 2rem);
+    color: white !important;
+    opacity: 0.9;
+    max-width: 30dvw;
+}
+
+.top-nav>li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 12px 16px;
+    /* visual padding */
+    color: inherit;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: transform .08s ease, box-shadow .08s ease;
+}
+
+
+
+/* selected/current item uses alternate artwork */
+.top-nav>li.selected {
+    background: #ffea00;
+    background: linear-gradient(0deg, rgba(255, 234, 0, 1) 0%, rgba(245, 255, 230, 1) 50%, rgba(255, 234, 0, 1) 100%);
+    border: var(--border-color-opacity) 0.25rem solid;
+    color: black !important;
+    opacity: 1.0;
+}
+
+.content {
+    background-image: url('genie.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    /* or use 'cover' to fill the area and crop */
+    background-origin: content-box;
+    flex: 1 1 auto;
+    overflow: auto;
+    min-height: 0;
+}
+
+@media screen and (min-width: 1730px) {
+    .top-nav {
+        margin: 0 clamp(2rem, 5dvw + 2rem, 8rem);
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .top-nav {
+        justify-content: center;
+
+    }
+
+    .top-nav>li {
+        flex: 0 0 35%;
+        max-width: 35%;
+        height: var(--nav-item-height);
+        box-sizing: border-box;
+        gap: 0;
+    }
+
+    .top-nav>li a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding: 10px 12px;
+    }
+}
+
+@media screen and (max-width: 501px) {
+    .top-nav {
+        flex-direction: column;
+    }
+
+    .top-nav>li {
+        width: 80%;
+        min-width: fit-content;
+        flex: 0 0 80%;
+        max-width: 80%;
+        height: var(--nav-item-height);
+        box-sizing: border-box;
+        margin: 0 auto;
+        gap: 0;
+    }
+
+    .top-nav>li a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+}
+
+.objectives-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    min-height: 0;
+    justify-content: flex-start; /* items start from top */
+    padding-bottom: 2rem; 
+    box-sizing: border-box;
+    padding-top: 2rem;
+}
+
+.objectives-view {
+    width: 90dvw;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 2dvmin;
+    background-color: rgba(30, 30, 31, 0.8);
+    backdrop-filter: blur(5px);
+
+    border-radius: clamp(0.5rem, 1dvw + 0.5rem, 1rem);
+    border: clamp(0.2rem, 0.4dvw + 0.2rem, 0.4rem) solid var(--border-color);
+    color: rgb(255, 253, 230);
+    
+    font-size: clamp(1rem, 1.5dvw + 0.5rem, 1.3rem); /* Adjusted font size */
+    letter-spacing: 0.035rem;
+    line-height: 1.5;
+    
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    list-style-type: none; /* remove default ul dots */
+    
+    overflow-y: scroll;
+    scrollbar-gutter: stable both-edges;
+    flex: 1;
+    min-height: 0;
+}
+
+.objective-item {
+    background: rgba(255, 255, 255, 0.05); /* slightly lighter bg for items */
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 253, 230, 0.3);
+}
+
+.objective-title h3 {
+    margin-top: 0;
+    color: #f0e68c; /* Match h1/h2 color */
+    text-align: left; /* reset center align */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.objective-description p {
+    margin: 0.5rem 0 1rem 0;
+    color: #eee;
+}
+
+.tasks-item ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.tasks-item li {
+    margin-bottom: 0.5rem;
+    color: #ddd;
+}
+
+/* Button Styling matches nav/agenda buttons */
+button.add-task, button.add-objective {
+    padding: 0.5rem 1rem;
+    font-family: inherit;
+    font-size: 1rem;
+    background: #0015FF;
+    background: linear-gradient(0deg, rgba(0, 21, 255, 1) 0%, rgba(10, 0, 25, 1) 50%, rgba(0, 21, 255, 1) 100%);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+button.add-task:hover, button.add-objective:hover {
+    background: #ffea00;
+    background: linear-gradient(0deg, rgba(255, 234, 0, 1) 0%, rgba(245, 255, 230, 1) 50%, rgba(255, 234, 0, 1) 100%);
+    color: black;
+    border-color: peru;
+}
+
+.objectives-container > button { /* The top "Add Objective" button */
+    padding: 0.9dvmin 1.6dvmin;
+    font-family: inherit;
+    font-size: clamp(1rem, 1.6dvw + 0.8rem, 1.6rem);
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 5px;
+    background-color: #f0e68c;
+    cursor: pointer;
+    color: black;
+}
+
+.objectives-container > button:hover {
+    background-color: burlywood;
+}
+
+
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    min-height: 0;
+    justify-content: center;
+    padding-bottom: calc(var(--chat-input-height) + 2rem); /* separation halved */
+    box-sizing: border-box;
+}
+
+.chat-view {
+    /* CHANGED: Use calc() to fill the screen exactly without going behind the input */
+    /* 100dvh (full screen) - chat input variable - approx 12rem for top nav/spacing */
+    height: 100%; 
+    width: 90dvw;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 2dvmin;
+    overflow-y: scroll;
+    background-color: rgba(30, 30, 31, 0.8);
+
+    /* Ensure the padding doesn't add to the total width/height */
+    box-sizing: border-box;
+
+    border-radius: clamp(0.5rem, 1dvw + 0.5rem, 1rem);
+    border: clamp(0.2rem, 0.4dvw + 0.2rem, 0.4rem) solid rgb(255, 253, 230);
+    color: rgb(255, 253, 230);
+    font-size: clamp(1.25rem, 2dvw + 1rem, 2.5rem);
+    letter-spacing: 0.035rem;
+    word-spacing: 0.5rem;
+    line-height: clamp(1.25rem, 2dvw + 1rem, 2.5rem);
+    scrollbar-gutter: stable both-edges;
+
+    /* OPTIONAL: This adds extra padding inside the scroll area at the bottom 
+       just in case the calculation is slightly tight */
+    padding-bottom: 1rem;
+    font-family: var(--font-family-chat)
+}
+
+.chat-view::-webkit-scrollbar, #calendar::-webkit-scrollbar, .objectives-view::-webkit-scrollbar  {
+    width: clamp(0.5rem, 1dvw, 1rem);
+}
+
+.chat-view::-webkit-scrollbar-thumb, #calendar::-webkit-scrollbar-thumb, .objectives-view::-webkit-scrollbar-thumb {
+    background-color: rgba(240, 230, 140, 0.8);
+    border-radius: clamp(0.25rem, 0.5dvw, 0.5rem);
+}
+
+.chat-view::-webkit-scrollbar-thumb:hover, #calendar::-webkit-scrollbar-thumb:hover, .objectives-view::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(240, 230, 140, 1.0);
+    border-radius: clamp(0.25rem, 0.5dvw, 0.5rem);
+
+}
+
+.chat-view::-webkit-scrollbar-track, #calendar::-webkit-scrollbar-track, .objectives-view::-webkit-scrollbar-track {
+    background-color: transparent;
+    border-radius: clamp(0.25rem, 0.5dvw, 0.5rem);
+}
+
+.chat-input {
+    position: fixed;
+    bottom: 1rem; /* bring input closer to bottom */
+    left: 50%;
+    transform: translateX(-50%); /* Centers it perfectly */
+    width: 90dvw;
+    height: var(--chat-input-height);
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+}
+
+.chat-input input[type="text"] {
+    flex: 1;
+    font-size: clamp(1.05rem, 1.8dvw + 0.9rem, 1.6rem); /* slightly smaller but readable */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    width: 70dvw;
+}
+.chat-input input[type="text"]::placeholder {
+    text-align: center;
+    font-size: clamp(1rem, 2dvw + .75rem, 2.25rem);
+}
+
+.chat-input button {
+    padding: 0.9dvmin 1.6dvmin;
+    font-size: clamp(1rem, 1.6dvw + 0.8rem, 1.6rem); /* slightly smaller */
+    margin-left: 1dvmin;
+    border: none;
+    border-radius: 5px;
+    width: calc(26dvw - 1dvmin); /* a bit narrower */
+    background-color: bisque;
+    cursor: pointer;
+}
+
+.chat-input button:hover {
+    background-color: burlywood;
+}
+
+footer p {
+    text-align: right;
+    padding: clamp(0.5rem, 1dvw + 0.5rem, 1.5rem);
+    margin: 0;
+    font-size: clamp(0.5rem, 0.5dvw + 0.5rem, 0.75rem);
+    color: white;
+}
+
+
+/* --- Calendar / Agenda Styles --- */
+
+.calendar {
+    /* Flex container to center content, taking remaining vertical space */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align top so it doesn't stretch weirdly */
+    flex: 1 1 auto; /* Allow growing to fill space */
+    padding: clamp(0.5rem, 2dvw, 1.5rem);
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 2rem;
+    overflow-y: hidden; /* Allow scrolling within the calendar area context */
+}
+
+/* calendar element: fluid width but constrained */
+#calendar {
+    width: 90dvw;
+    margin: 0 auto;
+    box-sizing: border-box;
+    
+    /* Match .chat-view style */
+    background-color: rgba(30, 30, 31, 0.8);
+    backdrop-filter: blur(5px);
+    
+    padding: clamp(1rem, 2dvw, 2rem);
+    
+    border-radius: clamp(0.5rem, 1dvw + 0.5rem, 1rem);
+    border: clamp(0.2rem, 0.4dvw + 0.2rem, 0.4rem) solid rgb(255, 253, 230);
+    color: rgb(255, 253, 230);
+    
+    font-family: inherit;
+    
+    /* Scrollable container like chat-view */
+    height: 80vh; /* Fixed height to allow internal scrolling if needed, or rely on FC */
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable both-edges;
+}
+
+/* FullCalendar Overrides for Theme Integration */
+.fc {
+    /* Responsive font size */
+    font-size: clamp(0.8rem, 0.8dvw + 0.5rem, 1.1rem); 
+}
+
+/* Make header cells look like buttons (only the text cushion) */
+.fc-col-header-cell-cushion {
+    display: inline-block;
+    width: 100%; /* Force full width to cover parent */
+    padding: 0.3em 0.5em !important;
+    background: #0015FF;
+    background: linear-gradient(0deg, rgba(0, 21, 255, 1) 0%, rgba(10, 0, 25, 1) 50%, rgba(0, 21, 255, 1) 100%);
+    color: white !important;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-sizing: border-box;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-decoration: none !important;
+}
+
+/* Ensure the calendar header background is transparent so the 'ugly' white doesn't show */
+.fc-theme-standard th {
+    background: transparent !important;
+    border-color: rgba(255, 255, 255, 0.15); /* Keep border subtle */
+}
+
+/* Toolbar Title */
+.fc .fc-toolbar-title {
+    font-size: clamp(1.2rem, 1.5dvw + 1rem, 2rem) !important;
+    color: #f0e68c; /* Match h1/h2 color */
+}
+
+/* Buttons */
+.fc .fc-button {
+    font-size: clamp(0.75rem, 0.8dvw, 1rem) !important;
+    padding: 0.4em 0.8em !important;
+    background-color: #0015FF;
+    background: linear-gradient(0deg, rgba(0, 21, 255, 1) 0%, rgba(10, 0, 25, 1) 50%, rgba(0, 21, 255, 1) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    text-transform: capitalize;
+}
+
+.fc .fc-button:hover {
+    opacity: 0.9;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active, 
+.fc .fc-button-primary:not(:disabled):active {
+    background: #ffea00;
+    background: linear-gradient(0deg, rgba(255, 234, 0, 1) 0%, rgba(245, 255, 230, 1) 50%, rgba(255, 234, 0, 1) 100%);
+    color: black;
+    border-color: peru !important;
+}
+
+/* Calendar Grid/List Colors */
+.fc-theme-standard th, 
+.fc-theme-standard td,
+.fc-theme-standard .fc-scrollgrid {
+    border-color: rgba(255, 255, 255, 0.15); /* More subtle borders */
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc-timegrid-axis-cushion {
+    color: #e0e0e0;
+    text-decoration: none;
+}
+
+.fc-day-today {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Ensure events look clickable */
+.fc-event {
+    cursor: pointer !important;
+}
+
+/* --- Mobile Stacked Grid View --- */
+/* Transform Standard Grid into Vertical List on Small Screens */
+
+@media (max-width: 768px) {
+    /* --- SCOPED TO MONTH VIEW ONLY --- */
+    /* Hide the top header row (Sun, Mon...) entirely */
+    .fc-dayGridMonth-view .fc-col-header, 
+    .fc-dayGridMonth-view .fc-col-header-row, 
+    .fc-dayGridMonth-view .fc-scrollgrid-section-header, 
+    .fc-dayGridMonth-view colgroup { 
+        display: none !important; 
+    }
+
+    /* Resetting the Application Frame to grow vertically */
+    .fc-dayGridMonth-view .fc-view-harness, 
+    .fc-dayGridMonth-view .fc-view-harness-active {
+        height: auto !important;
+        min-height: 500px !important;
+    }
+
+    .fc-dayGridMonth-view .fc-scroller-harness, 
+    .fc-dayGridMonth-view .fc-scroller, 
+    .fc-dayGridMonth-view .fc-daygrid-body {
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Transforming the Grid Table into a Vertical Stack */
+    
+    /* The Table itself */
+    .fc-dayGridMonth-view .fc-scrollgrid-sync-table {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+    
+    .fc-dayGridMonth-view .fc-scrollgrid-sync-table tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* The Rows (Weeks) -> Flex Columns */
+    .fc-dayGridMonth-view .fc-scrollgrid-sync-table tr {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    /* The Cells (Days) -> Full Width Cards */
+    .fc-dayGridMonth-view td.fc-daygrid-day {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 120px !important;
+        
+        /* Box Styling */
+        background-color: rgba(255, 255, 255, 0.03);
+        margin-bottom: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 8px;
+        box-sizing: border-box !important;
+    }
+
+    /* Fix internal frame height */
+    .fc-dayGridMonth-view .fc-daygrid-day-frame {
+        min-height: 120px !important;
+        height: auto !important;
+    }
+
+    /* Custom Mobile Day Header Injection */
+    .fc-dayGridMonth-view .fc-day-sun .fc-daygrid-day-top:before { content: "Sunday"; }
+    .fc-dayGridMonth-view .fc-day-mon .fc-daygrid-day-top:before { content: "Monday"; }
+    .fc-dayGridMonth-view .fc-day-tue .fc-daygrid-day-top:before { content: "Tuesday"; }
+    .fc-dayGridMonth-view .fc-day-wed .fc-daygrid-day-top:before { content: "Wednesday"; }
+    .fc-dayGridMonth-view .fc-day-thu .fc-daygrid-day-top:before { content: "Thursday"; }
+    .fc-dayGridMonth-view .fc-day-fri .fc-daygrid-day-top:before { content: "Friday"; }
+    .fc-dayGridMonth-view .fc-day-sat .fc-daygrid-day-top:before { content: "Saturday"; }
+
+    .fc-dayGridMonth-view .fc-daygrid-day-top:before { 
+        color: #f0e68c; 
+        font-weight: bold; 
+        font-size: 1rem;
+        text-transform: uppercase;
+    }
+
+    /* Header Bar within the card */
+    .fc-dayGridMonth-view .fc-daygrid-day-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .fc-dayGridMonth-view .fc-daygrid-day-number {
+        font-size: 1.2rem;
+        font-weight: normal;
+        color: white;
+    }
+}
+
+/* Events */
+.fc-event {
+    cursor: pointer;
+    border-radius: 4px;
+    border: none;
+}
+
+/* Responsive Adjustments for Mobile */
+@media (max-width: 768px) {
+    .calendar {
+        padding: 0.5rem;
+    }
+    
+    #calendar {
+        padding: 0.5rem;
+    }
+
+    /* Wrap toolbar contents */
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .fc .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap; /* allow buttons to wrap if needed */
+        gap: 0.5rem;
+    }
+    
+    /* Smaller font on mobile */
+    .fc .fc-toolbar-title {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* Modal Stying */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(30, 20, 50, 0.95), rgba(10, 5, 20, 0.98));
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transform: scale(1);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.hidden .modal-content {
+    transform: scale(0.9);
+}
+
+.modal-content h2 {
+    margin: 0;
+    font-size: 2rem;
+    color: #ffd700;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.modal-content input, .modal-content textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    padding: 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1.1rem;
+    resize: vertical;
+}
+
+.modal-content input:focus, .modal-content textarea:focus {
+    outline: none;
+    border-color: #ffd700;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.modal-actions button {
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    font-family: 'Alladin', cursive;
+    transition: transform 0.1s, box-shadow 0.2s;
+    border: none;
+}
+
+.modal-actions button:active {
+    transform: scale(0.95);
+}
+
+.primary-btn {
+    background: linear-gradient(90deg, #ffd700, #ffaa00);
+    color: #2a0a38;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.secondary-btn {
+    background: transparent;
+    color: #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+/* Weights & Delete Icons */
+.weight-badge {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex; /* Use flexbox to center content */ 
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.delete-task-icon {
+    cursor: pointer;
+    color: #ff3333; /* Explicit bright red */
+    font-size: 1.1em;
+    padding: 4px;
+    transition: color 0.2s, transform 0.2s;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.4);
+}
+
+.delete-task-icon:hover {
+    color: #ff0000;
+    transform: scale(1.2);
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+
+/* Status Badges */
+.status-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tag-new {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tag-progress {
+    background-color: rgba(255, 215, 0, 0.1);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.tag-completed {
+    background-color: rgba(0, 255, 100, 0.1);
+    color: #00ff64;
+    border: 1px solid rgba(0, 255, 100, 0.3);
+}
+
+/* Task Completion */
+.task-completed-item {
+    background-color: rgba(0, 255, 100, 0.08) !important;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.task-completed-item .task-text {
+    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.5);
+}
+.task-completed-item .weight-badge {
+    opacity: 0.5;
+    background: rgba(0, 255, 100, 0.1);
+    border-color: rgba(0, 255, 100, 0.3);
+    color: #00ff64;
+}
+
+.complete-task-btn {
+    background: transparent;
+    border: 2px solid #00ff64;
+    color: transparent; /* Hide any content if present */
+    cursor: pointer;
+    border-radius: 50%;
+    width: 20px; /* Adjusted to match visual weight of X */
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+    transition: all 0.2s;
+    box-shadow: 0 0 5px rgba(0, 255, 100, 0.2);
+    margin-top: 2px; /* Slight alignment fix */
+}
+
+.complete-task-btn:hover {
+    background: rgba(0, 255, 100, 0.3);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 255, 100, 0.6);
+}
+
+/* Complete Objective Button */
+.complete-obj-btn {
+    background: linear-gradient(90deg, #00ff64, #00aa44);
+    color: #05070a;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    font-size: 0.9rem;
+}
+
+.complete-obj-btn:hover:not(:disabled) {
+    box-shadow: 0 0 10px rgba(0, 255, 100, 0.4);
+}
+
