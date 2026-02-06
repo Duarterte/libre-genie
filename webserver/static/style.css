@@ -162,6 +162,8 @@ nav, .top-nav {
     overflow: auto;
     min-height: 0;
     width: 100%;
+    /* Ensure footer doesn't overlap content by reserving space at bottom */
+    padding-bottom: 3.5rem; 
 }
 
 
@@ -171,10 +173,16 @@ nav, .top-nav {
 
 /* Common properties for the main content block of each view */
 .objectives-view, .chat-view, #calendar {
-    width: 90dvw;
-    margin: 0 auto;
+    width: auto; /* Use auto width to respect margins */
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 1000px; /* Cap width for desktop */
+    margin-top: 0;
+    margin-bottom: 0;
+    
     box-sizing: border-box;
-    padding: var(--view-padding);
+    /* Increased base padding for mobile container */
+    padding: clamp(1rem, 3dvw, 2rem);
     
     background-color: var(--color-bg-overlay);
     backdrop-filter: blur(5px);
@@ -191,6 +199,40 @@ nav, .top-nav {
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
+}
+
+@media (min-width: 768px) {
+    .objectives-view, .chat-view {
+        /* Keep centered and readable width for text content */
+        width: 90svw; 
+        max-width: 90dvw;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Relax max-width for Agenda on desktop to use more screen space */
+    #calendar {
+        width: auto; /* Allow margin-based sizing */
+        margin-left: 2vw; 
+        margin-right: 2vw;
+        max-width: none; 
+    }
+
+    .chat-input {
+        /* Center chat input on larger screens */
+        width: auto;
+        
+    }
+}
+
+/* Landscape Mobile Fix: Ensure calendar can scroll if vertical space is tight */
+@media (max-height: 500px) and (orientation: landscape) {
+    #calendar {
+        height: auto; /* Allow growth */
+        max-height: 85vh; /* But don't exceed view too much */
+    }
+    .fc-toolbar-title { font-size: 1rem !important; }
+    .fc-button { padding: 0.2em 0.5em !important; font-size: 0.8rem !important; }
 }
 
 /* --- Scrollbars (Trackball Style) --- */
@@ -218,10 +260,13 @@ nav, .top-nav {
     flex: 1;
     display: flex;
     flex-direction: column; 
-    align-items: center;
+    align-items: stretch; /* Allow children to fill width */
     justify-content: flex-start;
     padding: 2rem 0;
     min-height: 0;
+    /* Match chat container height logic for mobile */
+    height: 100dvh;
+    padding-bottom: calc(4rem + 10vh + env(safe-area-inset-bottom, 30px));
 }
 .objectives-view {
     display: flex;
@@ -247,28 +292,39 @@ nav, .top-nav {
     flex: 1;
     display: flex;
     flex-direction: column; 
-    align-items: center;
-    justify-content: center;
-    padding-bottom: calc(var(--chat-input-height) + 2rem);
+    align-items: stretch; /* change from center to stretch */
+    justify-content: flex-start; 
     min-height: 0;
+    /* Use dvh to account for mobile browser chrome/nav bars */
+    height: 100dvh; 
+    position: relative;
+    padding-bottom: 0;
 }
 .chat-view {
-    height: 100%;
+    flex: 1;
+    /* Removed width: 100% to allow shared margin rules to work */
     font-family: var(--font-family-chat);
-    /* Chat specific spacing */
     word-spacing: 0.2rem;
     padding-bottom: 1rem;
+    overflow-y: auto;
 }
 .chat-input {
-    position: fixed;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90dvw;
-    height: var(--chat-input-height);
+    flex-shrink: 0;
+    position: relative;
+    bottom: auto; left: auto; transform: none;
+    
+    /* Auto width + Shared Margins to match chat view */
+    width: auto;
+    margin-left: clamp(1rem, 3dvw, 2rem);
+    margin-right: clamp(1rem, 3dvw, 2rem);
+    
     z-index: 10;
     display: flex;
     justify-content: center;
+    background: transparent;
+    /* Add extra padding at bottom for mobile nav bars/safe areas */
+    padding: 10px 0 calc(30px + env(safe-area-inset-bottom, 30px)); 
+    margin-bottom: clamp(2rem, 10vh, 6rem); /* Lift it up further dynamically */
 }
 .chat-input input[type="text"] {
     flex: 1;
@@ -276,7 +332,9 @@ nav, .top-nav {
     border: 1px solid #ccc;
     border-radius: 5px;
     text-align: center;
-    width: 70dvw;
+    /* Adjust width relative to container, not viewport */
+    width: auto;
+    margin-right: 5px;
 }
 .chat-input button {
     padding: 0.5rem 1rem;
@@ -325,11 +383,14 @@ button.add-task:hover, button.add-objective:hover {
 }
 /* Top Level Add Button */
 .objectives-container > button {
+    height: var(--nav-item-height);
+    max-width: 30dvw;
     background: var(--color-gold);
     color: black;
     font-size: var(--font-std-size);
+    margin: 0 auto;
     margin-bottom: 1rem;
-    margin-top: 0;
+    
     border: none;
 }
 .objectives-container > button:hover { background-color: burlywood; }
@@ -450,7 +511,34 @@ button.add-task:hover, button.add-objective:hover {
    9. FULLCALENDAR OVERRIDES
    ========================================= */
 .fc { font-family: inherit; }
-.fc-toolbar-title { font-size: 1.5rem !important; color: var(--color-gold); }
+.fc-toolbar-title { 
+    font-size: clamp(1.0rem, 1.2dvw + 0.5rem, 1.5rem) !important; /* Smaller, more flexible sizing */
+    color: var(--color-gold); 
+}
+
+/* Revert flex-wrap to prevent ugly vertical stacking unless absolutely necessary */
+.fc-header-toolbar {
+    flex-wrap: nowrap !important;
+    gap: 0.1rem !important; /* Tighter gap */
+    justify-content: space-between !important;
+    width: 100%;
+}
+
+/* On very small devices, allow wrapping if absolutely needed but keep decent alignment */
+@media (max-width: 380px) {
+    .fc-header-toolbar {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+}
+
+/* Ensure buttons shrink properly on tiny screens */
+.fc .fc-toolbar-chunk {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
 .fc-col-header-cell-cushion {
     display: inline-block; width: 100%; padding: 0.3em 0.5em !important;
     background: linear-gradient(0deg, rgba(0, 21, 255, 1) 0%, rgba(10, 0, 25, 1) 50%, rgba(0, 21, 255, 1) 100%);
@@ -461,7 +549,8 @@ button.add-task:hover, button.add-objective:hover {
 }
 .fc-theme-standard th, .fc-theme-standard td, .fc-theme-standard .fc-scrollgrid { border-color: rgba(255, 255, 255, 0.15); }
 .fc .fc-button {
-    font-size: 0.9rem !important;
+    font-size: clamp(0.75rem, 0.8dvw, 1rem) !important; /* Restore responsive sizing */
+    padding: 0.4em 0.8em !important;
     background: linear-gradient(0deg, rgba(0, 21, 255, 1) 0%, rgba(10, 0, 25, 1) 50%, rgba(0, 21, 255, 1) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
@@ -482,20 +571,43 @@ button.add-task:hover, button.add-objective:hover {
     .fc-dayGridMonth-view .fc-col-header-row, 
     .fc-dayGridMonth-view .fc-scrollgrid-section-header, 
     .fc-dayGridMonth-view colgroup { display: none !important; }
+
+    /* CRITICAL: Unlock height for vertical stacking */
+    .fc-dayGridMonth-view .fc-view-harness, 
+    .fc-dayGridMonth-view .fc-view-harness-active {
+        height: auto !important;
+        min-height: 500px !important;
+    }
+    .fc-dayGridMonth-view .fc-scroller-harness, 
+    .fc-dayGridMonth-view .fc-scroller, 
+    .fc-dayGridMonth-view .fc-daygrid-body {
+        height: auto !important;
+        overflow: visible !important;
+    }
     
     .fc-dayGridMonth-view .fc-scrollgrid-sync-table,
-    .fc-dayGridMonth-view .fc-scrollgrid-sync-table tbody { display: block !important; width: 100% !important; }
-    .fc-dayGridMonth-view .fc-scrollgrid-sync-table tr { display: flex !important; flex-direction: column !important; width: 100% !important; }
+    .fc-dayGridMonth-view .fc-scrollgrid-sync-table tbody { 
+        display: block !important; 
+        width: 100% !important;
+        height: auto !important;
+    }
+    .fc-dayGridMonth-view .fc-scrollgrid-sync-table tr { 
+        display: flex !important; 
+        flex-direction: column !important; 
+        width: 100% !important; 
+        height: auto !important;
+    }
     
     .fc-dayGridMonth-view td.fc-daygrid-day {
         display: block !important;
         width: 100% !important;
         max-width: 100% !important;
-        min-height: 120px !important;
+        min-height: 80px !important; /* Reduced height to fit more */
         background-color: rgba(255, 255, 255, 0.03);
-        margin-bottom: 12px;
+        margin-bottom: 8px; /* Reduced gap */
         border: 1px solid rgba(255, 255, 255, 0.15) !important;
         border-radius: 8px;
+        box-sizing: border-box !important; 
     }
     .fc-dayGridMonth-view .fc-daygrid-day-top {
         display: flex !important;
@@ -503,16 +615,22 @@ button.add-task:hover, button.add-objective:hover {
         background-color: rgba(0, 0, 0, 0.3);
         padding: 8px 12px;
     }
-    /* Inject Day Names */
-    .fc-dayGridMonth-view .fc-day-sun .fc-daygrid-day-top:before { content: "Sunday"; }
-    .fc-dayGridMonth-view .fc-day-mon .fc-daygrid-day-top:before { content: "Monday"; }
-    .fc-dayGridMonth-view .fc-day-tue .fc-daygrid-day-top:before { content: "Tuesday"; }
-    .fc-dayGridMonth-view .fc-day-wed .fc-daygrid-day-top:before { content: "Wednesday"; }
-    .fc-dayGridMonth-view .fc-day-thu .fc-daygrid-day-top:before { content: "Thursday"; }
-    .fc-dayGridMonth-view .fc-day-fri .fc-daygrid-day-top:before { content: "Friday"; }
-    .fc-dayGridMonth-view .fc-day-sat .fc-daygrid-day-top:before { content: "Saturday"; }
+    /* Inject Day Names - Ensure visibility */
+    .fc-dayGridMonth-view .fc-day-sun .fc-daygrid-day-top:before { content: "Sunday"; display: inline-block; }
+    .fc-dayGridMonth-view .fc-day-mon .fc-daygrid-day-top:before { content: "Monday"; display: inline-block; }
+    .fc-dayGridMonth-view .fc-day-tue .fc-daygrid-day-top:before { content: "Tuesday"; display: inline-block; }
+    .fc-dayGridMonth-view .fc-day-wed .fc-daygrid-day-top:before { content: "Wednesday"; display: inline-block; }
+    .fc-dayGridMonth-view .fc-day-thu .fc-daygrid-day-top:before { content: "Thursday"; display: inline-block; }
+    .fc-dayGridMonth-view .fc-day-fri .fc-daygrid-day-top:before { content: "Friday"; display: inline-block; }
+    .fc-dayGridMonth-view .fc-day-sat .fc-daygrid-day-top:before { content: "Saturday"; display: inline-block; }
     
-    .fc-dayGridMonth-view .fc-daygrid-day-top:before { color: var(--color-gold); font-weight: bold; text-transform: uppercase; }
+    .fc-dayGridMonth-view .fc-daygrid-day-top:before { 
+        color: var(--color-gold); 
+        font-weight: bold; 
+        text-transform: uppercase;
+        margin-right: auto; /* Push date number to the right if flex */
+        font-size: 0.9em;
+    }
 }
 
 /* =========================================

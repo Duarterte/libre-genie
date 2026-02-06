@@ -4,7 +4,6 @@ function toolFunction(...parms) {
     console.log("Type of first parameter:", typeof parms[0]);
 }
 
-
 document.addEventListener("DOMContentLoaded", () => {
     // Replace '/calendar/events' with your actual server-side SSE endpoint
     const eventSource = new EventSource("/sse");
