@@ -318,6 +318,10 @@ def agenda_page():
 def objectives_page():
     return FileResponse("html/objectives.html")
 
+@app.get("/robots.txt")
+def robots_txt():
+    return FileResponse("static/robots.txt")
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
