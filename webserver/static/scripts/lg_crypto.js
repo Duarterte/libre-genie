@@ -54,7 +54,6 @@ async function getUUIDAndSecretCount() {
             body: JSON.stringify({ client_id: uuid, secret: secret })
         });
         const data = await response.json();
-        console.log('Credentials status:', data);
         if (data.count === 0) {
             console.log('Device not registered. Registering now...');
             await registerDevice(uuid, secret);

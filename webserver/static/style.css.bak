@@ -152,7 +152,7 @@ nav, .top-nav, h1 {
 }
 
 .content {
-    background-image: url('genie.png');
+    background-image: url('genie.webp');
     background-position: center center;
     background-repeat: no-repeat;
     background-size: contain;

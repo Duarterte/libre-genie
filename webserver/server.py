@@ -238,12 +238,31 @@ def get_user_stats_tool():
 
 class Assistant:
     def __init__(self):
-        self.llm = ChatOpenAI(
-            model="deepseek-chat",
-            openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
-            openai_api_base="https://api.deepseek.com",
-            temperature=1.3,
-        )
+        deepseek_key = os.getenv("DEEPSEEK_API_KEY")
+        openai_key = os.getenv("OPENAI_API_KEY")
+
+        if deepseek_key:
+            # Use DeepSeek
+            print("INFO: Using DeepSeek API")
+            self.llm = ChatOpenAI(
+                model="deepseek-chat",
+                openai_api_key=deepseek_key,
+                openai_api_base="https://api.deepseek.com",
+                temperature=1.3,
+            )
+        elif openai_key:
+            # Use OpenAI (Fallback)
+            print("INFO: Using OpenAI API")
+            self.llm = ChatOpenAI(
+                model="gpt-4o", # or gpt-3.5-turbo
+                openai_api_key=openai_key,
+                # No openai_api_base needed, uses default https://api.openai.com/v1
+                temperature=0.7,
+            )
+        else:
+            print("CRITICAL: No API Key found for DeepSeek or OpenAI!")
+            # Fallback to prevent crash during init, though it will fail later
+            self.llm = ChatOpenAI(api_key="none")
 
         # Updated Persona: Genie
         self.system_message = SystemMessage(
@@ -291,6 +310,39 @@ class Assistant:
         self.config = {}
 
 app = FastAPI()
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    # Content Security Policy (CSP)
+    # script-src 'self' allows scripts from same origin. 'unsafe-eval' is often needed for some libs.
+    # style-src 'self' 'unsafe-inline' allows same origin styles and inline styles (needed for many JS libs).
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "img-src 'self' data: blob:; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "connect-src 'self'; "
+        "font-src 'self' data:; "
+        "worker-src 'self' blob:;"
+    )
+    # Strict Transport Security (HSTS)
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+    # Cross-Origin Opener Policy (COOP)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    # X-Frame-Options (XFO)
+    response.headers["X-Frame-Options"] = "DENY"
+    # X-Content-Type-Options
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    # Referrer Policy
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    
+    # Cache-Control for Static Assets (1 week for images/css/js)
+    # Check if request path starts with /static (but in production usually nginx handles this)
+    if "static" in request.url.path:
+        response.headers["Cache-Control"] = "public, max-age=604800, immutable"
+        
+    return response
 
 @app.on_event("startup")
 def on_startup():
@@ -350,35 +402,35 @@ def get_history(client_id: str = Query(...), secret: str = Query(...)):
 @app.post("/api/chat")
 async def chat(input_data: ChatInput):
     print(f"DEBUG: Chat request: {input_data.question} from {input_data.client_id}")
-    question = input_data.question
-    client_id = input_data.client_id
-    secret = input_data.secret
-    
-    # Verify client
-    if not lg_db.get_client(client_id, secret):
-         print("DEBUG: Client verification failed")
-         return JSONResponse(content={"error": "Invalid client_id or secret"}, status_code=403)
-    
-    current_client_id.set(client_id)
-    
-    # Save User Context
-    lg_db.add_chat_message(client_id, "user", question)
-    
-    # Fetch Context (History) to give the assistant memory
-    # We fetch the last 20 messages to provide enough context
-    history_records = lg_db.get_chat_history(client_id, limit=20)
-    
-    # Convert DB records to LangGraph message format
-    # Note: The current question we just added is included in 'history_records'
-    # because get_chat_history sorts by timestamp.
-    messages_payload = []
-    for record in history_records:
-        # Map DB roles to LangChain roles just in case, though they match (user/assistant)
-        role = record["role"]
-        messages_payload.append({"role": role, "content": record["content"]})
-    
-    assistant = Assistant()
     try:
+        question = input_data.question
+        client_id = input_data.client_id
+        secret = input_data.secret
+        
+        # Verify client
+        if not lg_db.get_client(client_id, secret):
+             print("DEBUG: Client verification failed")
+             return JSONResponse(content={"error": "Invalid client_id or secret"}, status_code=403)
+        
+        current_client_id.set(client_id)
+        
+        # Save User Context
+        lg_db.add_chat_message(client_id, "user", question)
+        
+        # Fetch Context (History) to give the assistant memory
+        # We fetch the last 20 messages to provide enough context
+        history_records = lg_db.get_chat_history(client_id, limit=20)
+        
+        # Convert DB records to LangGraph message format
+        # Note: The current question we just added is included in 'history_records'
+        # because get_chat_history sorts by timestamp.
+        messages_payload = []
+        for record in history_records:
+            # Map DB roles to LangChain roles just in case, though they match (user/assistant)
+            role = record["role"]
+            messages_payload.append({"role": role, "content": record["content"]})
+    
+        assistant = Assistant()
         # create_react_agent expects input like: {"messages": [{"role":"user","content": ...}]}
         # Run blocking agent in a thread to keep async loop responsive for WS
         # Increased recursion_limit to 100 to handle complex multi-step plans (e.g. creating multiple objectives/tasks)
@@ -421,6 +473,7 @@ async def chat(input_data: ChatInput):
         print(f"ERROR: Chat exception: {e}")
         import traceback
         traceback.print_exc()
+        return JSONResponse(content={"error": str(e)}, status_code=500)
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
 
@@ -522,44 +575,4 @@ def register_device_api(device: DeviceRegistration):
 
     return {"status": "registered", "client_id": device.client_id}
 
-# events SSE endpoint
-@app.get("/sse")
-async def calendar_events(request: Request):
-    print("SSE endpoint called")
-    
-    # Create a queue for this specific client
-    queue = asyncio.Queue()
-    connections.append(queue)
-    
-    async def event_generator():
-        try:
-            while True:
-                # Wait lazily for new data. This blocks without consuming CPU
-                # until something calls queue.put()
-                data = await queue.get()
-                
-                # If connection closes, the loop breaks via CancelledError
-                yield f"data: {json.dumps(data)}\n\n"
-        except asyncio.CancelledError:
-            print("SSE client disconnected")
-        finally:
-            connections.remove(queue)
 
-    return StreamingResponse(
-        event_generator(), 
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"}
-    )
-
-@app.get("/api/trigger_sse")
-async def trigger_test(text: str = "hello", parms: list[str] = Query(default=[])):
-    """
-    Trigger SSE event.
-    Usage: /api/trigger_sse?text=hello&parms=arg1&parms=arg2
-    """
-    # parms is now a real list: ['arg1', 'arg2']
-    message = {"command": text, "parameters": parms}
-    
-    for q in connections:
-        await q.put(message)
-    return {"status": "sent", "message": message, "receivers": len(connections)}

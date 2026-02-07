@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LibreGenie Objectives - Track and manage your goals and tasks.">
     <title>LibreGenie</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/png" href="/static/favicon.ico">
@@ -16,12 +17,12 @@
             <li><a href="/">Home</a></li>
         </ul>
     </nav>
-    <section class="objectives-container">
+    <main class="objectives-container">
         <button id="add-obj-btn">Add Objective</button>
         <div class="objectives-view">
             <div style="text-align: center; color: rgba(255,255,255,0.5);">Loading...</div>
         </div>
-    </section>
+    </main>
 
     <!-- Modal for adding Objective/Task -->
     <div id="genie-modal" class="modal-overlay hidden">
@@ -38,7 +39,7 @@
     </div>
 
     <!-- replace previous script with efficient canvas-based background -->
+    <script src="/static/scripts/nav_selection.js" defer></script>
+    <script src="/static/scripts/objectives.js" defer></script>
 </body>
-<script src="/static/scripts/nav_selection.js"></script>
-<script src="/static/scripts/objectives.js"></script>
 </html>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LibreGenie Chat - Interact with your personal AI assistant.">
     <title>LibreGenie Chat</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" type="image/png" href="/static/favicon.ico">
@@ -14,7 +15,7 @@
             <li><a href="/">Home</a></li>
         </ul> 
     </nav>  
-    <section class="chat-container">
+    <main class="chat-container">
         <!-- Status indicator separate from layout flow if possible, or small overlay -->
         <div id="status" style="display:none; color: red; text-align: center;"></div>
         
@@ -24,9 +25,9 @@
             <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off"/>
             <button id="send-button">Send</button>
         </div>
-    </section>
-    <script src="/static/vendor/marked.umd.min.js"></script>
-    <script src="/static/scripts/nav_selection.js"></script>
-    <script src="/static/scripts/chat.js"></script>
+    </main>
+    <script src="/static/vendor/marked.umd.min.js" defer></script>
+    <script src="/static/scripts/nav_selection.js" defer></script>
+    <script src="/static/scripts/chat.js" defer></script>
 </body>
 </html>

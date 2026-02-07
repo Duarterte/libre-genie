@@ -153,17 +153,22 @@ nav, .top-nav {
    4.1 MAIN CONTENT AREA
    ========================================= */
 .content {
-    background-image: url('genie.png');
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-origin: content-box;
+    /* Removed background-image for LCP optimization */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     flex: 1 1 auto;
     overflow: auto;
     min-height: 0;
     width: 100%;
-    /* Ensure footer doesn't overlap content by reserving space at bottom */
     padding-bottom: 3.5rem; 
+}
+
+.hero-image {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
 }
 
 
@@ -221,7 +226,7 @@ nav, .top-nav {
     .chat-input {
         /* Center chat input on larger screens */
         width: auto;
-        
+            
     }
 }
 

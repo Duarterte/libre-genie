@@ -31,6 +31,7 @@ services:
       LG_POSTGRES_PASSWORD: ${LG_POSTGRES_PASSWORD}
       LG_POSTGRES_DB: ${LG_POSTGRES_DB}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
     depends_on:
       - db
     networks:
